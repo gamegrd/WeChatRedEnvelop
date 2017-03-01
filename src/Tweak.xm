@@ -36,8 +36,9 @@
 
 		return [nativeUrlDict stringForKey:@"sign"];
 	};
-
-	NSDictionary *responseDict = [[[NSString alloc] initWithData:arg1.retText.buffer encoding:NSUTF8StringEncoding] JSONDictionary];
+    NSString *retText = [[NSString alloc] initWithData:arg1.retText.buffer encoding:NSUTF8StringEncoding] ;
+    NSLog(@"GR: %@",retText);
+	NSDictionary *responseDict = [retText JSONDictionary];
 
 	WeChatRedEnvelopParam *mgrParams = [[WBRedEnvelopParamQueue sharedQueue] dequeue];
 
@@ -99,10 +100,14 @@
 %hook CMessageMgr
 - (void)AsyncOnAddMsg:(NSString *)msg MsgWrap:(CMessageWrap *)wrap {
 	%orig;
-	
+    	
+        UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"" message:wrap.m_nsContent delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+        [alert show];
 	switch(wrap.m_uiMessageType) {
 	case 49: { // AppNode
 
+
+        NSLog(@"type:%lu   %@",(unsigned long)wrap.m_uiMessageType,wrap.m_nsContent);
 		/** 是否为红包消息 */
 		BOOL (^isRedEnvelopMessage)() = ^BOOL() {
 			return [wrap.m_nsContent rangeOfString:@"wxpay://"].location != NSNotFound;
